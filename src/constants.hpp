@@ -715,7 +715,128 @@ inline constexpr levelType     shutdownPinType  = levelType::activeLow;
 #endif
 inline constexpr uint8_t       openAnalogPin    = A7;
 inline constexpr unsigned long cycleTime        = 50;
+#elif TonUINO_Esp32 == 101
+// ####### buttons #####################################
+// ESP32 non-Arduino
+inline constexpr uint8_t   buttonPausePin  = 13;
 
+#if defined(BUTTONS3X3)
+inline constexpr uint8_t   button3x3Pin    = A3;
+inline constexpr uint8_t   buttonUpPin     = A1;
+inline constexpr uint8_t   buttonDownPin   = A2;
+inline constexpr uint32_t  button3x3DbTime = 50; // Debounce time in milliseconds (default 50ms)
+#elif defined(FIVEBUTTONS)
+inline constexpr uint8_t   buttonUpPin     = 14;
+inline constexpr uint8_t   buttonDownPin   = 15;
+inline constexpr uint8_t   buttonFourPin   = 24;
+inline constexpr uint8_t   buttonFivePin   = 25;
+#else
+inline constexpr uint8_t   buttonUpPin     = A1;
+inline constexpr uint8_t   buttonDownPin   = A2;
+#endif
+
+inline constexpr levelType buttonPinType   = levelType::activeLow;
+inline constexpr uint32_t  buttonDbTime    = 25; // Debounce time in milliseconds (default 25ms)
+
+// ####### chip_card ###################################
+
+inline constexpr uint32_t cardCookie      = 0x1337b347;
+inline constexpr uint8_t  cardVersion     = 0x02;
+inline constexpr byte     mfrc522_RSTPin  =  21;
+inline constexpr byte     mfrc522_SSPin   =  22;
+inline constexpr uint8_t  cardRemoveDelay =   3;
+
+// ####### mp3 #########################################
+
+#ifdef DFPlayerUsesHardwareSerial
+inline constexpr HardwareSerial &dfPlayer_serial         = Serial0; // D0 RX, D1 TX (Esp32)
+#else
+inline constexpr uint8_t       dfPlayer_receivePin      = 16;
+inline constexpr uint8_t       dfPlayer_transmitPin     = 17;
+#endif
+
+inline constexpr uint8_t       maxTracksInFolder        = 255;
+inline constexpr uint8_t       dfPlayer_busyPin         = 25;
+inline constexpr levelType     dfPlayer_busyPinType     = levelType::activeHigh;
+#if defined(DFMiniMp3_T_CHIP_MH2024K24SS_MP3_TF_16P_V3_0)
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 2500;
+#elif defined(DFMiniMp3_T_CHIP_GD3200B)
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 2500;
+#else
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 1200;
+#endif
+
+// ####### tonuino #####################################
+
+inline constexpr uint8_t       shutdownPin      = 4;
+#ifdef USE_POLOLU_SHUTDOWN
+inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
+#else
+inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
+#endif
+inline constexpr uint8_t       openAnalogPin    = 2;
+inline constexpr unsigned long cycleTime        = 50;
+#elif TonUINO_Esp32 == 102
+// ####### buttons #####################################
+// ESP32-C3 Super Mini
+inline constexpr uint8_t   buttonPausePin  = 1;
+
+#if defined(BUTTONS3X3)
+inline constexpr uint8_t   button3x3Pin    = A3;
+inline constexpr uint8_t   buttonUpPin     = A1;
+inline constexpr uint8_t   buttonDownPin   = A2;
+inline constexpr uint32_t  button3x3DbTime = 50; // Debounce time in milliseconds (default 50ms)
+#elif defined(FIVEBUTTONS)
+inline constexpr uint8_t   buttonUpPin     = 2;
+inline constexpr uint8_t   buttonDownPin   = 3;
+inline constexpr uint8_t   buttonFourPin   = 4;
+inline constexpr uint8_t   buttonFivePin   = 5;
+#else
+inline constexpr uint8_t   buttonUpPin     = A1;
+inline constexpr uint8_t   buttonDownPin   = A2;
+#endif
+
+inline constexpr levelType buttonPinType   = levelType::activeLow;
+inline constexpr uint32_t  buttonDbTime    = 25; // Debounce time in milliseconds (default 25ms)
+
+// ####### chip_card ###################################
+
+inline constexpr uint32_t cardCookie      = 0x1337b347;
+inline constexpr uint8_t  cardVersion     = 0x02;
+inline constexpr byte     mfrc522_RSTPin  =  3;
+inline constexpr byte     mfrc522_SSPin   =  7;
+inline constexpr uint8_t  cardRemoveDelay =   3;
+
+// ####### mp3 #########################################
+
+#ifdef DFPlayerUsesHardwareSerial
+inline constexpr HardwareSerial &dfPlayer_serial         = Serial0; // D0 RX, D1 TX (Esp32)
+#else
+inline constexpr uint8_t       dfPlayer_receivePin      = 21; // from DFP
+inline constexpr uint8_t       dfPlayer_transmitPin     = 20; // to DFP
+#endif
+
+inline constexpr uint8_t       maxTracksInFolder        = 255;
+inline constexpr uint8_t       dfPlayer_busyPin         = 10;
+inline constexpr levelType     dfPlayer_busyPinType     = levelType::activeHigh;
+#if defined(DFMiniMp3_T_CHIP_MH2024K24SS_MP3_TF_16P_V3_0)
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 2500;
+#elif defined(DFMiniMp3_T_CHIP_GD3200B)
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 2500;
+#else
+inline constexpr unsigned long dfPlayer_timeUntilStarts = 1200;
+#endif
+
+// ####### tonuino #####################################
+
+inline constexpr uint8_t       shutdownPin      = 9;
+#ifdef USE_POLOLU_SHUTDOWN
+inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
+#else
+inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
+#endif
+inline constexpr uint8_t       openAnalogPin    = 0;
+inline constexpr unsigned long cycleTime        = 50;
 #else //  TonUINO_Esp32 == *
 static_assert(false, "Not supported Esp32 HW type");
 #endif  //  TonUINO_Esp32 == *
