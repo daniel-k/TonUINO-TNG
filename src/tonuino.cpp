@@ -4,9 +4,9 @@
 #ifndef TonUINO_Esp32
 #include <avr/sleep.h>
 #else
-#include <esp_bt.h>
+// #include <esp_bt.h>
 #include <esp_sleep.h>
-#include <esp_bt_main.h>
+// #include <esp_bt_main.h>
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
 #endif
@@ -103,7 +103,13 @@ void Tonuino::setup() {
 #endif
 
 #ifdef TonUINO_Esp32
-  esp_task_wdt_init(120, true); // increase the default wd timeout
+    const esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 120000,   // 120 seconds
+        .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // Watchdog all idle tasks
+        .trigger_panic = true
+    };
+
+  esp_task_wdt_init(&twdt_config); // increase the default wd timeout
   // init webservice
   webservice.init();
 #endif
@@ -489,10 +495,10 @@ void Tonuino::shutdown() {
   cli();  // Disable interrupts
   sleep_mode();
 #else
-  esp_bluedroid_disable();
-  esp_bluedroid_deinit();
-  esp_bt_controller_disable();
-  esp_bt_controller_deinit();
+  // esp_bluedroid_disable();
+  // esp_bluedroid_deinit();
+  // esp_bt_controller_disable();
+  // esp_bt_controller_deinit();
   esp_wifi_stop();
   esp_deep_sleep_start();
 #endif
