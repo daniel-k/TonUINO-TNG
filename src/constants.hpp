@@ -324,7 +324,7 @@ inline constexpr unsigned long btModulePairingPulse    = 500;
 
 #ifdef BAT_VOLTAGE_MEASUREMENT
 #if not defined(ALLinONE_Plus) and not defined(ALLinONE)
-inline constexpr uint8_t voltageMeasurementPin         = A5;
+inline constexpr uint8_t voltageMeasurementPin         = A2;
 #endif // ALLinONE_Plus
 
 #ifdef ALLinONE_Plus
@@ -340,7 +340,7 @@ inline constexpr float   voltageMeasurementCorrection  = 2.007; // Spannungsteil
 inline constexpr float   voltageMeasurementCorrection  = 2.007; // Spannungsteiler 100k/100k
 #endif
 #ifdef TonUINO_Esp32
-inline constexpr float   voltageMeasurementCorrection  = 0.710; // Spannungsteiler 100k/100k
+inline constexpr float   voltageMeasurementCorrection  = 1 + 45.25 / 19.76; // Spannungsteiler 20k/45k
 #endif
 
 // for Li-Ion
