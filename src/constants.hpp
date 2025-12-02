@@ -898,7 +898,7 @@ inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
 // inline constexpr levelType     shutdownPinType  = levelType::activeLow;
 // #endif
 inline constexpr uint8_t       openAnalogPin    = 0;
-inline constexpr unsigned long cycleTime        = 50;
+inline constexpr unsigned long cycleTime        = 100;
 
 #else //  TonUINO_Esp32 == *
 static_assert(false, "Not supported Esp32 HW type");

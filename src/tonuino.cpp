@@ -6,6 +6,7 @@
 #else
 // #include <esp_bt.h>
 #include <esp_sleep.h>
+#include "esp_pm.h"
 // #include <esp_bt_main.h>
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
@@ -112,6 +113,15 @@ void Tonuino::setup() {
 
   // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
   esp_task_wdt_init(&twdt_config); // increase the default wd timeout
+
+
+    esp_pm_config_t pm_config = {
+        .max_freq_mhz = 40,
+        .min_freq_mhz = 10,
+        .light_sleep_enable = true
+    };
+    esp_pm_configure(&pm_config);
+
 
   if (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
     LOG(init_log, s_error, F("Webservice enabled"));
@@ -319,8 +329,13 @@ void Tonuino::loop() {
 
   unsigned long  stop_cycle = millis();
 
-  if (stop_cycle-start_cycle < cycleTime)
-    delay(cycleTime - (stop_cycle - start_cycle));
+  long sleep_ms = cycleTime - (stop_cycle - start_cycle);
+  if (sleep_ms > 0) {
+      LOG(standby_log, s_info, "sleep_ms=", sleep_ms);
+      esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL);
+      esp_light_sleep_start();
+  }
+    // delay(cycleTime - (stop_cycle - start_cycle));
 }
 
 void Tonuino::playFolder() {
