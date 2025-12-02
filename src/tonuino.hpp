@@ -174,6 +174,8 @@ private:
 
   bool                 request_shutdown    {};
 
+  bool                 webserviceEnabled   {false};
+
 #ifdef BT_MODULE
   bool                 btModuleOn          {};
   Timer                btModulePairingTimer{};

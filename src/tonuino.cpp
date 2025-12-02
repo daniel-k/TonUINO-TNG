@@ -40,6 +40,7 @@ ISR(TIMER1_COMPA_vect){
 #endif
 
 void Tonuino::setup() {
+
 #ifdef USE_LED_BUTTONS
   ledManager.begin();
   ledManager.setState(ledState::startup);
@@ -109,9 +110,19 @@ void Tonuino::setup() {
         .trigger_panic = true
     };
 
+  // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
   esp_task_wdt_init(&twdt_config); // increase the default wd timeout
-  // init webservice
-  webservice.init();
+
+  if (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
+    LOG(init_log, s_error, F("Webservice enabled"));
+    webserviceEnabled = true;
+
+    // init webservice
+    webservice.init();
+  } else {
+    LOG(init_log, s_error, F("Webservice disabled"));
+  }
+
 #endif
 
   // init NFC reader
@@ -301,7 +312,9 @@ void Tonuino::loop() {
 #endif // BT_MODULE
 
 #ifdef TonUINO_Esp32
-  webservice.loop();
+  if(webserviceEnabled) {
+    webservice.loop();
+  }
 #endif
 
   unsigned long  stop_cycle = millis();
@@ -465,7 +478,9 @@ void Tonuino::shutdown() {
   LOG(standby_log, s_info, F("power off!"));
 
 #ifdef ESP32
-  webservice.push_shutdown();
+  if(webserviceEnabled) {
+    webservice.push_shutdown();
+  }
 #endif
 
 #ifdef NEO_RING

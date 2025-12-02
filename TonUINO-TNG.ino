@@ -74,6 +74,8 @@ void setup()
 
   // return;
   Tonuino::getTonuino().setup();
+
+
 }
 
 void loop()
