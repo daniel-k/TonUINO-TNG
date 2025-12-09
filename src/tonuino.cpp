@@ -123,7 +123,7 @@ void Tonuino::setup() {
     esp_pm_configure(&pm_config);
 
 
-  if (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
+  if (true or digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
     LOG(init_log, s_error, F("Webservice enabled"));
     webserviceEnabled = true;
 
