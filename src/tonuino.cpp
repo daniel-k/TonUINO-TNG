@@ -331,11 +331,11 @@ void Tonuino::loop() {
 
   long sleep_ms = cycleTime - (stop_cycle - start_cycle);
   if (sleep_ms > 0) {
-      LOG(standby_log, s_info, "sleep_ms=", sleep_ms);
-      esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL);
-      esp_light_sleep_start();
+      // LOG(standby_log, s_info, "sleep_ms=", sleep_ms);
+      // esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL);
+      // esp_light_sleep_start();
+      delay(sleep_ms);
   }
-    // delay(cycleTime - (stop_cycle - start_cycle));
 }
 
 void Tonuino::playFolder() {
