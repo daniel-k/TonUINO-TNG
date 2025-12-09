@@ -866,7 +866,7 @@ inline constexpr uint32_t  buttonDbTime    = 25; // Debounce time in millisecond
 inline constexpr uint32_t cardCookie      = 0x1337b347;
 inline constexpr uint8_t  cardVersion     = 0x02;
 inline constexpr byte     mfrc522_RSTPin  =   8;
-inline constexpr byte     mfrc522_SSPin   =  14;
+inline constexpr byte     mfrc522_SSPin   =  18;
 inline constexpr uint8_t  cardRemoveDelay =   3;
 
 // ####### mp3 #########################################

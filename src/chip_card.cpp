@@ -246,7 +246,7 @@ void Chip_card::sleepCard() {
 }
 
 void Chip_card::initCard() {
-  SPI.begin(18, 20, 19, -1);                                                    // Init SPI bus
+  SPI.begin(14, 20, 19, -1);                                                    // Init SPI bus
   mfrc522.PCD_Init();                                             // Init MFRC522
   LOG_CODE(card_log, s_debug, {
       if (not mfrc522.PCD_PerformSelfTest())
