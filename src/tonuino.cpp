@@ -351,43 +351,25 @@ void Tonuino::loop() {
 
   long sleep_ms = cycleTime - (stop_cycle - start_cycle);
   if (sleep_ms > 0) {
-#ifdef TonUINO_Esp32
       digitalWrite(15, LOW);
-#endif
-      // LOG(standby_log, s_info, "sleep_ms=", sleep_ms);
 
 #ifdef TonUINO_Esp32
 #ifdef DFPlayerUsesHardwareSerial
       dfPlayer_serial.flush(); // make sure DFPlayer commands are fully sent before clock is stopped
 #endif
       Serial.flush();          // avoid corrupting debug UART output on light sleep entry
+#endif
 
-#ifdef DFPlayerUsesHardwareSerial
-      if(mp3.isPlaying()) {
-        LOG(standby_log, s_info, "mp3 is playing, fallback to delay()");
-        delay(sleep_ms);
-      } else if (dfp_uart_wakeup_configured) {
-        if(ESP_OK != esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL)) {
-          LOG(standby_log, s_info, "configuring sleep timer failed");
-        }
+      if(ESP_OK != esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL)) {
+        LOG(standby_log, s_info, "configuring sleep timer failed");
+      }
 
-        if (ESP_OK != esp_light_sleep_start()) {
-          LOG(standby_log, s_info, "light sleep failed, fallback to delay()");
-          delay(sleep_ms);
-        }
-      } else {
+      if (ESP_OK != esp_light_sleep_start()) {
+        LOG(standby_log, s_info, "light sleep failed, fallback to delay()");
         delay(sleep_ms);
       }
-#else
-      delay(sleep_ms);
-#endif
-#else
-      delay(sleep_ms);
-#endif
 
-#ifdef TonUINO_Esp32
       digitalWrite(15, HIGH);
-#endif
   }
 }
 
