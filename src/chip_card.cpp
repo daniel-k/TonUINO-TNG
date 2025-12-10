@@ -246,8 +246,15 @@ void Chip_card::sleepCard() {
 }
 
 void Chip_card::initCard() {
+  SPI.setFrequency(1e6);
   SPI.begin(14, 20, 19, -1);                                                    // Init SPI bus
   mfrc522.PCD_Init();                                             // Init MFRC522
+
+  // reduce timeout to 5ms
+  mfrc522.PCD_WriteRegister(MFRC522::TReloadRegH, 0x00);
+  mfrc522.PCD_WriteRegister(MFRC522::TReloadRegL, 0xC8);
+
+
   LOG_CODE(card_log, s_debug, {
       if (not mfrc522.PCD_PerformSelfTest())
         LOG(card_log, s_debug, F("mfrc522 self test not successful"));
