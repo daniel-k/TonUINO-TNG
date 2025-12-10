@@ -10,6 +10,7 @@
 // #include <esp_bt_main.h>
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
+#include <driver/uart.h>
 #endif
 
 #include "array.hpp"
@@ -22,6 +23,11 @@
 namespace {
 
 const __FlashStringHelper* str_bis      () { return F(" bis "); }
+
+#if defined(TonUINO_Esp32) && defined(DFPlayerUsesHardwareSerial)
+constexpr uart_port_t dfp_uart_port = UART_NUM_0;
+bool dfp_uart_wakeup_configured = false;
+#endif
 
 } // anonymous namespace
 
@@ -111,18 +117,33 @@ void Tonuino::setup() {
         .trigger_panic = true
     };
 
-  // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
-  esp_task_wdt_init(&twdt_config); // increase the default wd timeout
+    // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
+    esp_task_wdt_init(&twdt_config); // increase the default wd timeout
 
-
+    esp_sleep_enable_timer_wakeup(5000); // required but unused
     esp_pm_config_t pm_config = {
-        .max_freq_mhz = 40,
-        .min_freq_mhz = 10,
+        .max_freq_mhz = 80,
+        .min_freq_mhz = 20,
         .light_sleep_enable = true
     };
     esp_pm_configure(&pm_config);
 
+#ifdef DFPlayerUsesHardwareSerial
+    esp_err_t uartWakeErr = uart_set_wakeup_threshold(dfp_uart_port, 3);
+    if (uartWakeErr == ESP_OK)
+      uartWakeErr = esp_sleep_enable_uart_wakeup(dfp_uart_port);
 
+    if (uartWakeErr == ESP_OK) {
+      dfp_uart_wakeup_configured = true;
+    } else {
+      LOG(init_log, s_warning, F("DFP UART wake disabled: "), uartWakeErr);
+    }
+#endif
+
+    pinMode(15, OUTPUT);
+    digitalWrite(15, LOW);
+
+  pinMode(buttonFivePin, INPUT_PULLUP);
   if (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
     LOG(init_log, s_error, F("Webservice enabled"));
     webserviceEnabled = true;
@@ -221,7 +242,6 @@ void Tonuino::setup_adc() {
 }
 
 void Tonuino::loop() {
-
   unsigned long  start_cycle = millis();
   checkStandby();
 
@@ -331,10 +351,43 @@ void Tonuino::loop() {
 
   long sleep_ms = cycleTime - (stop_cycle - start_cycle);
   if (sleep_ms > 0) {
+#ifdef TonUINO_Esp32
+      digitalWrite(15, LOW);
+#endif
       // LOG(standby_log, s_info, "sleep_ms=", sleep_ms);
-      // esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL);
-      // esp_light_sleep_start();
+
+#ifdef TonUINO_Esp32
+#ifdef DFPlayerUsesHardwareSerial
+      dfPlayer_serial.flush(); // make sure DFPlayer commands are fully sent before clock is stopped
+#endif
+      Serial.flush();          // avoid corrupting debug UART output on light sleep entry
+
+#ifdef DFPlayerUsesHardwareSerial
+      if(mp3.isPlaying()) {
+        LOG(standby_log, s_info, "mp3 is playing, fallback to delay()");
+        delay(sleep_ms);
+      } else if (dfp_uart_wakeup_configured) {
+        if(ESP_OK != esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL)) {
+          LOG(standby_log, s_info, "configuring sleep timer failed");
+        }
+
+        if (ESP_OK != esp_light_sleep_start()) {
+          LOG(standby_log, s_info, "light sleep failed, fallback to delay()");
+          delay(sleep_ms);
+        }
+      } else {
+        delay(sleep_ms);
+      }
+#else
       delay(sleep_ms);
+#endif
+#else
+      delay(sleep_ms);
+#endif
+
+#ifdef TonUINO_Esp32
+      digitalWrite(15, HIGH);
+#endif
   }
 }
 
