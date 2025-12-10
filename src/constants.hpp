@@ -897,7 +897,7 @@ inline constexpr levelType     shutdownPinType  = levelType::activeHigh;
 // #else
 // inline constexpr levelType     shutdownPinType  = levelType::activeLow;
 // #endif
-inline constexpr uint8_t       openAnalogPin    = 0;
+inline constexpr uint8_t       openAnalogPin    = 2;
 inline constexpr unsigned long cycleTime        = 100;
 
 #else //  TonUINO_Esp32 == *
