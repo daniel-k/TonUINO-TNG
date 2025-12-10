@@ -340,12 +340,12 @@ inline constexpr float   voltageMeasurementCorrection  = 2.007; // Spannungsteil
 inline constexpr float   voltageMeasurementCorrection  = 2.007; // Spannungsteiler 100k/100k
 #endif
 #ifdef TonUINO_Esp32
-inline constexpr float   voltageMeasurementCorrection  = 1 + 45.25 / 19.76; // Spannungsteiler 20k/45k
+inline constexpr float   voltageMeasurementCorrection  = 1 + 195.7 / 67.9; // Spannungsteiler 20k/45k
 #endif
 
 // for Li-Ion
-inline constexpr float   batVoltageLow                 = 2.95;
-inline constexpr float   batVoltageEmpty               = 2.90;
+inline constexpr float   batVoltageLow                 = 3.1;
+inline constexpr float   batVoltageEmpty               = 3.0;
 // for Li-PO
 //inline constexpr float   batVoltageLow                 = 3.40;
 //inline constexpr float   batVoltageEmpty               = 3.20;

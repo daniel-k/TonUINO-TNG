@@ -14,7 +14,7 @@ inline constexpr uint16_t voltageMeasurementRefVoltage = 1100; // reference volt
 inline constexpr int16_t voltageMeasurementMaxLevel    = 4095;
 inline constexpr int16_t voltageMeasurementLowLevel    = batVoltageLow   * voltageMeasurementCorrection /voltageMeasurementMaxLevel;
 inline constexpr int16_t voltageMeasurementEmptyLevel  = batVoltageEmpty * voltageMeasurementCorrection /voltageMeasurementMaxLevel;
-inline constexpr unsigned long batLowMessageIntervall  = 30*1000; // 30 seconds
+inline constexpr unsigned long batLowMessageIntervall  = 10*1000; // 10 seconds
 inline constexpr unsigned long batEmptyTimer           = 10*1000; // 10 seconds
 
 #ifdef TonUINO_Classic
