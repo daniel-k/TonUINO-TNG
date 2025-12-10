@@ -90,7 +90,7 @@ void Mp3::init() {
 }
 
 void Mp3::refreshIsPlaying() {
-  is_playing_cache = !digitalRead(dfPlayer_busyPin);
+  is_playing_cache = getLevel(dfPlayer_busyPinType, digitalRead(dfPlayer_busyPin)) == level::active;
 }
 
 void Mp3::waitForTrackToFinish() {
