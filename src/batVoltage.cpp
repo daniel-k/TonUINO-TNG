@@ -9,12 +9,12 @@
 namespace {
 
 #ifndef TonUINO_Classic
-inline constexpr uint16_t voltageMeasurementRefVoltage = 1100; // reference voltage mV
+inline constexpr uint16_t voltageMeasurementRefVoltage = 2500; // reference voltage mV
 #endif
-inline constexpr int16_t voltageMeasurementMaxLevel    = 4095;
-inline constexpr int16_t voltageMeasurementLowLevel    = batVoltageLow   * voltageMeasurementCorrection /voltageMeasurementMaxLevel;
-inline constexpr int16_t voltageMeasurementEmptyLevel  = batVoltageEmpty * voltageMeasurementCorrection /voltageMeasurementMaxLevel;
-inline constexpr unsigned long batLowMessageIntervall  = 10*1000; // 10 seconds
+inline constexpr int16_t voltageMeasurementMaxLevel    = 1023;
+inline constexpr int16_t voltageMeasurementLowLevel    = batVoltageLow  /voltageMeasurementCorrection*voltageMeasurementMaxLevel;
+inline constexpr int16_t voltageMeasurementEmptyLevel  = batVoltageEmpty/voltageMeasurementCorrection*voltageMeasurementMaxLevel;
+inline constexpr unsigned long batLowMessageIntervall  = 30*1000; // 30 seconds
 inline constexpr unsigned long batEmptyTimer           = 10*1000; // 10 seconds
 
 #ifdef TonUINO_Classic
@@ -44,21 +44,21 @@ bool BatVoltage::check() {
 #ifdef TonUINO_Classic
   const uint16_t voltageMeasurementRefVoltage = readVcc();
 #endif
-  // const int16_t value = analogRead(voltageMeasurementPin)*static_cast<long>(voltageMeasurementRefVoltage)/1000;
+#ifndef TonUINO_Esp32
+  const int16_t value = analogRead(voltageMeasurementPin)*static_cast<long>(voltageMeasurementRefVoltage)/1000;
+#else
   const float rawVoltage = 0.001 * analogReadMilliVolts(voltageMeasurementPin);
-  const float voltage = rawVoltage * voltageMeasurementCorrection;
+  const float batteryVoltage = rawVoltage * voltageMeasurementCorrection;
+  const int16_t value = batteryVoltage / (voltageMeasurementCorrection/voltageMeasurementMaxLevel);
+#endif
 
   if (logTimer.isExpired()) {
-    logTimer.start(1000);
-    // voltage = value*voltageMeasurementCorrection/voltageMeasurementMaxLevel;
-    // const float milliVolts = analogReadMilliVolts(voltageMeasurementPin);
-    // LOG(batvol_log, s_debug, F("raw: "), value);
-    // LOG(batvol_log, s_debug, F("mV: "), milliVolts);
-    LOG(batvol_log, s_debug, F("RawVoltage: "), rawVoltage);
+    logTimer.start(2000);
+    voltage = value*voltageMeasurementCorrection/voltageMeasurementMaxLevel;
     LOG(batvol_log, s_debug, F("BatVoltage: "), voltage);
   }
 
-  if (voltage < batVoltageEmpty) {
+  if (value < voltageMeasurementEmptyLevel) {
     if (emptyTimer.isActive()) {
       if (emptyTimer.isExpired()) {
         LOG(batvol_log, s_error, F("BatVoltage empty"));
@@ -73,7 +73,7 @@ bool BatVoltage::check() {
     emptyTimer.stop();
   }
 
-  if (voltage < batVoltageLow) {
+  if (value < voltageMeasurementLowLevel) {
     if (lowTimer.isActive()) {
       if (lowTimer.isExpired()) {
         low = true;
