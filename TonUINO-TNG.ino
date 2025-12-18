@@ -72,14 +72,11 @@ void setup()
   LOG(init_log, s_error, F("3"));
 #endif
 
-  // return;
+
   Tonuino::getTonuino().setup();
-
-
 }
 
 void loop()
 {
-  // return;
   Tonuino::getTonuino().loop();
 }
