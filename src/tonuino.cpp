@@ -12,6 +12,7 @@
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
 #include <esp_pm.h>
+#include <esp_idf_version.h>
 #endif
 
 #include "array.hpp"
@@ -107,6 +108,16 @@ void Tonuino::setup() {
 #endif
 
 #ifdef TonUINO_Esp32
+#if ESP_IDF_VERSION_MAJOR < 5
+  esp_task_wdt_init(120, true); // increase the default wd timeout
+#else
+  const esp_task_wdt_config_t twdt_config = {
+      .timeout_ms = 120000,
+      .idle_core_mask = (1 << CONFIG_FREERTOS_NUMBER_OF_CORES) - 1,  // Watchdog all idle tasks
+      .trigger_panic = true
+  };
+  esp_task_wdt_reconfigure(&twdt_config);
+#endif
   webserviceEnabled = (
     digitalRead(buttonDownPin) == getLevel(buttonPinType, level::active)
     && digitalRead(buttonUpPin) == getLevel(buttonPinType, level::active)
