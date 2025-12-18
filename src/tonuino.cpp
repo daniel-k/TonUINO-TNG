@@ -12,7 +12,6 @@
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
 #include <esp_pm.h>
-#include <driver/uart.h>
 #endif
 
 #include "array.hpp"
@@ -25,11 +24,6 @@
 namespace {
 
 const __FlashStringHelper* str_bis      () { return F(" bis "); }
-
-#if defined(TonUINO_Esp32) && defined(DFPlayerUsesHardwareSerial)
-constexpr uart_port_t dfp_uart_port = UART_NUM_0;
-bool dfp_uart_wakeup_configured = false;
-#endif
 
 } // anonymous namespace
 
@@ -113,19 +107,6 @@ void Tonuino::setup() {
 #endif
 
 #ifdef TonUINO_Esp32
-
-#ifdef DFPlayerUsesHardwareSerial
-    esp_err_t uartWakeErr = uart_set_wakeup_threshold(dfp_uart_port, 3);
-    if (uartWakeErr == ESP_OK)
-      uartWakeErr = esp_sleep_enable_uart_wakeup(dfp_uart_port);
-
-    if (uartWakeErr == ESP_OK) {
-      dfp_uart_wakeup_configured = true;
-    } else {
-      LOG(init_log, s_warning, F("DFP UART wake disabled: "), uartWakeErr);
-    }
-#endif
-
   webserviceEnabled = (
     digitalRead(buttonDownPin) == getLevel(buttonPinType, level::active)
     && digitalRead(buttonUpPin) == getLevel(buttonPinType, level::active)
@@ -146,7 +127,6 @@ void Tonuino::setup() {
       .light_sleep_enable = !webserviceEnabled
   };
   esp_pm_configure(&pm_config);
-
 #endif
 
   // init NFC reader
