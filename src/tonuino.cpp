@@ -126,19 +126,16 @@ void Tonuino::setup() {
     }
 #endif
 
-  // pinMode(buttonFivePin, INPUT_PULLUP);
-  bool buttonPressed = false;
-  for(uint8_t i; i < 10; i++) {
-    buttonPressed |= (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active));
-    delay(5);
-  }
+  webserviceEnabled = (
+    digitalRead(buttonDownPin) == getLevel(buttonPinType, level::active)
+    && digitalRead(buttonUpPin) == getLevel(buttonPinType, level::active)
+  );
 
-  if (buttonPressed) {
-    LOG(init_log, s_error, F("Webservice enabled"));
-    webserviceEnabled = true;
-
+  if (webserviceEnabled) {
     // init webservice
     webservice.init();
+
+    LOG(init_log, s_error, F("Webservice enabled"));
   } else {
     LOG(init_log, s_error, F("Webservice disabled"));
   }

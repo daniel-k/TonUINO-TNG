@@ -121,6 +121,7 @@ private:
 #endif
 #ifdef TonUINO_Esp32
   Webservice           webservice          {settings, mp3};
+  bool                 webserviceEnabled   {false};
 #endif
   Commands             commands            {
                                             settings
@@ -173,8 +174,6 @@ private:
   uint16_t             numTracksInFolder   {};
 
   bool                 request_shutdown    {};
-
-  bool                 webserviceEnabled   {false};
 
 #ifdef BT_MODULE
   bool                 btModuleOn          {};
