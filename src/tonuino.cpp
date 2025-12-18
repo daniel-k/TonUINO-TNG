@@ -111,22 +111,6 @@ void Tonuino::setup() {
 #endif
 
 #ifdef TonUINO_Esp32
-    const esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 120000,   // 120 seconds
-        .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // Watchdog all idle tasks
-        .trigger_panic = true
-    };
-
-    // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
-    esp_task_wdt_init(&twdt_config); // increase the default wd timeout
-
-    esp_sleep_enable_timer_wakeup(5000); // required but unused
-    esp_pm_config_t pm_config = {
-        .max_freq_mhz = 80,
-        .min_freq_mhz = 20,
-        .light_sleep_enable = true
-    };
-    esp_pm_configure(&pm_config);
 
 #ifdef DFPlayerUsesHardwareSerial
     esp_err_t uartWakeErr = uart_set_wakeup_threshold(dfp_uart_port, 3);
@@ -143,8 +127,15 @@ void Tonuino::setup() {
     pinMode(15, OUTPUT);
     digitalWrite(15, LOW);
 
-  pinMode(buttonFivePin, INPUT_PULLUP);
-  if (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active)) {
+  // pinMode(buttonFivePin, INPUT_PULLUP);
+  bool buttonPressed = false;
+  for(uint8_t i; i < 10; i++) {
+    buttonPressed |= (digitalRead(buttonFivePin) == getLevel(buttonPinType, level::active));
+    delay(5);
+  }
+
+  if (buttonPressed) {
+  // if() {
     LOG(init_log, s_error, F("Webservice enabled"));
     webserviceEnabled = true;
 
@@ -153,6 +144,24 @@ void Tonuino::setup() {
   } else {
     LOG(init_log, s_error, F("Webservice disabled"));
   }
+
+
+  const esp_task_wdt_config_t twdt_config = {
+      .timeout_ms = 120000,   // 120 seconds
+      .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // Watchdog all idle tasks
+      .trigger_panic = true
+  };
+
+  // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
+  esp_task_wdt_init(&twdt_config); // increase the default wd timeout
+
+  esp_sleep_enable_timer_wakeup(5000); // required but unused
+  esp_pm_config_t pm_config = {
+      .max_freq_mhz = 80,
+      .min_freq_mhz = 20,
+      .light_sleep_enable = !webserviceEnabled
+  };
+  esp_pm_configure(&pm_config);
 
 #endif
 
@@ -360,13 +369,17 @@ void Tonuino::loop() {
       Serial.flush();          // avoid corrupting debug UART output on light sleep entry
 #endif
 
-      if(ESP_OK != esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL)) {
-        LOG(standby_log, s_info, "configuring sleep timer failed");
-      }
-
-      if (ESP_OK != esp_light_sleep_start()) {
-        LOG(standby_log, s_info, "light sleep failed, fallback to delay()");
+      if(webserviceEnabled) {
         delay(sleep_ms);
+      } else {
+        if(ESP_OK != esp_sleep_enable_timer_wakeup((uint64_t)sleep_ms * 1000ULL)) {
+          LOG(standby_log, s_info, "configuring sleep timer failed");
+        }
+
+        if (ESP_OK != esp_light_sleep_start()) {
+          LOG(standby_log, s_info, "light sleep failed, fallback to delay()");
+          delay(sleep_ms);
+        }
       }
 
       digitalWrite(15, HIGH);
