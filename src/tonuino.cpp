@@ -124,9 +124,6 @@ void Tonuino::setup() {
     }
 #endif
 
-    pinMode(15, OUTPUT);
-    digitalWrite(15, LOW);
-
   // pinMode(buttonFivePin, INPUT_PULLUP);
   bool buttonPressed = false;
   for(uint8_t i; i < 10; i++) {
@@ -360,8 +357,6 @@ void Tonuino::loop() {
 
   long sleep_ms = cycleTime - (stop_cycle - start_cycle);
   if (sleep_ms > 0) {
-      digitalWrite(15, LOW);
-
 #ifdef TonUINO_Esp32
 #ifdef DFPlayerUsesHardwareSerial
       dfPlayer_serial.flush(); // make sure DFPlayer commands are fully sent before clock is stopped
@@ -381,8 +376,6 @@ void Tonuino::loop() {
           delay(sleep_ms);
         }
       }
-
-      digitalWrite(15, HIGH);
   }
 }
 
