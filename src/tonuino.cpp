@@ -4,12 +4,14 @@
 #ifndef TonUINO_Esp32
 #include <avr/sleep.h>
 #else
-// #include <esp_bt.h>
+#include <esp_bt.h>
 #include <esp_sleep.h>
-#include "esp_pm.h"
-// #include <esp_bt_main.h>
+#ifdef CONFIG_BT_BLUEDROID_ENABLED
+#include <esp_bt_main.h>
+#endif
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
+#include <esp_pm.h>
 #include <driver/uart.h>
 #endif
 
@@ -570,12 +572,12 @@ void Tonuino::shutdown() {
   sleep_mode();
 #else
 
-#ifndef CONFIG_IDF_TARGET_ESP32C6
+#ifdef CONFIG_BT_BLUEDROID_ENABLED
   esp_bluedroid_disable();
   esp_bluedroid_deinit();
+#endif
   esp_bt_controller_disable();
   esp_bt_controller_deinit();
-#endif
 
   esp_wifi_stop();
   esp_deep_sleep_start();
