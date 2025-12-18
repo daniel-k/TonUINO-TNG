@@ -140,16 +140,6 @@ void Tonuino::setup() {
     LOG(init_log, s_error, F("Webservice disabled"));
   }
 
-
-  const esp_task_wdt_config_t twdt_config = {
-      .timeout_ms = 120000,   // 120 seconds
-      .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // Watchdog all idle tasks
-      .trigger_panic = true
-  };
-
-  // E (5664) task_wdt: esp_task_wdt_init(517): TWDT already initialized
-  esp_task_wdt_init(&twdt_config); // increase the default wd timeout
-
   esp_pm_config_t pm_config = {
       .max_freq_mhz = 80,
       .min_freq_mhz = 20,
