@@ -566,10 +566,14 @@ void Tonuino::shutdown() {
   cli();  // Disable interrupts
   sleep_mode();
 #else
-  // esp_bluedroid_disable();
-  // esp_bluedroid_deinit();
-  // esp_bt_controller_disable();
-  // esp_bt_controller_deinit();
+
+#ifndef CONFIG_IDF_TARGET_ESP32C6
+  esp_bluedroid_disable();
+  esp_bluedroid_deinit();
+  esp_bt_controller_disable();
+  esp_bt_controller_deinit();
+#endif
+
   esp_wifi_stop();
   esp_deep_sleep_start();
 #endif
